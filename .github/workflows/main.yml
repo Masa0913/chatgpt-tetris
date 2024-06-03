@@ -1,0 +1,28 @@
+name: deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      WORKING_DIR: ./app_engine/app/
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: copy sources to the working directory
+        run: |
+          cp ./Dockerfile ./app_engine/.gcloudignore ${{ env.WORKING_DIR }}
+      - name: deploy app
+        uses: google-github-actions/deploy-appengine@v0.4.0
+        with:
+          project_id: hoge-project
+          working_directory: ${{ env.WORKING_DIR }}
+          credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
++       env:
++         CLOUDSDK_APP_CLOUD_BUILD_TIMEOUT: 1200
